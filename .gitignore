@@ -1,0 +1,30 @@
+# Workspace files (user's working directory)
+workspace/*
+!workspace/.gitkeep
+
+# Docker volumes
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Node modules
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+env/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/

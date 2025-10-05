@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  dev-studio:
+    build: .
+    container_name: dev-studio
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./workspace:/workspace
+      - dev-studio-extensions:/home/developer/.local/share/code-server
+    environment:
+      - PASSWORD=developer
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+volumes:
+  dev-studio-extensions:
