@@ -2,6 +2,29 @@
 
 This is your workspace directory. All files you create here will be persisted on your host machine.
 
+## 🚀 New: Starter Templates Available!
+
+We've added **production-ready starter templates** to help you build faster:
+
+- **SaaS Starter** - Complete SaaS app with Stripe subscriptions
+- **E-commerce Starter** - Online store with product catalog
+- **Analytics Starter** - Dashboard with real-time charts
+
+### Get Started
+
+```bash
+cd scripts
+node create-project.js
+```
+
+Or explore the templates:
+```bash
+cd templates
+ls -la
+```
+
+📖 **[View Full Documentation](./TEMPLATES.md)**
+
 ## Quick Start Guide
 
 ### 1. Create a New Project
