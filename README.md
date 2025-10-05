@@ -49,8 +49,9 @@ Switch between AI providers without rebuilding:
 - **Anthropic** (Claude)
 - **Mistral** (Mistral Large)
 - **Together AI** (Llama, etc.)
+- **Aider** (AI pair programming assistant)
 
-Edit `/workspace/.aistudio/config.json` to switch providers on the fly.
+Edit `/workspace/.aistudio/config.json` to switch providers on the fly, or use the command palette: "AI Coder: Select Provider".
 
 ### Live Preview
 Real-time React preview on port 5173 with automatic reload when files change.
@@ -110,12 +111,44 @@ Edit `/workspace/.aistudio/config.json` to configure your AI provider:
     "openai": "sk-...",
     "anthropic": "sk-ant-...",
     "mistral": "...",
-    "together": "..."
+    "together": "...",
+    "aider": "..."
+  },
+  "cache": {
+    "enabled": true,
+    "maxSize": 100,
+    "ttl": 3600
   }
 }
 ```
 
+#### Configuring Aider
+To use Aider as your AI provider:
+1. Set `"provider": "aider"` in the config
+2. Add your Aider API key to `apiKeys.aider`
+3. Optionally specify the model (e.g., `"model": "gpt-4"`)
+
+You can also use the command palette: **AI Coder: Select Provider** to switch providers interactively.
+
 Changes take effect immediately - no container restart needed!
+
+### Cache Configuration
+
+The AI Router includes a built-in caching mechanism to reduce token usage and improve performance:
+
+- **enabled**: Enable or disable caching (default: true)
+- **maxSize**: Maximum number of cached responses (default: 100)
+- **ttl**: Cache time-to-live in seconds (default: 3600 = 1 hour)
+
+#### Cache Management
+- Clear cache: `curl -X POST http://localhost:3000/cache/clear`
+- View cache stats: `curl http://localhost:3000/cache/stats`
+- Toggle cache: `curl -X PUT http://localhost:3000/cache/toggle -H "Content-Type: application/json" -d '{"enabled": false}'`
+
+You can also configure cache via environment variables:
+- `ENABLE_CACHE`: Set to `false` to disable caching
+- `MAX_CACHE_SIZE`: Maximum cache entries (default: 100)
+- `CACHE_TTL`: Cache TTL in seconds (default: 3600)
 
 ### Changing the Password
 Edit the `docker-compose.yml` file and change the `PASSWORD` environment variable:

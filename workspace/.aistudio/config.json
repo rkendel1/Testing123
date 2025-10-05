@@ -5,11 +5,17 @@
     "openai": "",
     "anthropic": "",
     "mistral": "",
-    "together": ""
+    "together": "",
+    "aider": ""
   },
   "preferences": {
     "autocomplete": true,
     "streaming": true,
     "maxTokens": 2048
+  },
+  "cache": {
+    "enabled": true,
+    "maxSize": 100,
+    "ttl": 3600
   }
 }
