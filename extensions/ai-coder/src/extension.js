@@ -357,6 +357,60 @@ function toggleAutocompleteCommand() {
 }
 
 /**
+ * Select Provider Command
+ * Allows user to select AI provider from available options
+ */
+async function selectProviderCommand() {
+  try {
+    // Get available providers from AI Router
+    const routerUrl = getRouterUrl();
+    const response = await axios.get(`${routerUrl}/config`);
+    const availableProviders = response.data.availableProviders || [];
+    
+    // Show quick pick menu
+    const selected = await vscode.window.showQuickPick(availableProviders, {
+      placeHolder: 'Select AI Provider',
+      title: 'Choose AI Provider'
+    });
+    
+    if (!selected) {
+      return;
+    }
+    
+    // Update config file
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+      vscode.window.showErrorMessage('No workspace folder open');
+      return;
+    }
+    
+    const configPath = path.join(workspaceFolders[0].uri.fsPath, '.aistudio', 'config.json');
+    
+    if (!fs.existsSync(configPath)) {
+      vscode.window.showErrorMessage('Config file not found');
+      return;
+    }
+    
+    // Read current config
+    const configData = fs.readFileSync(configPath, 'utf8');
+    const config = JSON.parse(configData);
+    
+    // Update provider
+    config.provider = selected;
+    
+    // Write back to file
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+    
+    // Update status bar
+    updateStatusBar();
+    
+    vscode.window.showInformationMessage(`AI Provider changed to: ${selected}`);
+  } catch (error) {
+    vscode.window.showErrorMessage(`Failed to change provider: ${error.message}`);
+  }
+}
+
+/**
  * Update status bar item
  */
 function updateStatusBar() {
@@ -393,9 +447,10 @@ function activate(context) {
   const refactorCmd = vscode.commands.registerCommand('ai-coder.refactor', refactorCommand);
   const chatCmd = vscode.commands.registerCommand('ai-coder.chat', () => chatCommand(context));
   const toggleCmd = vscode.commands.registerCommand('ai-coder.toggleAutocomplete', toggleAutocompleteCommand);
+  const selectProviderCmd = vscode.commands.registerCommand('ai-coder.selectProvider', selectProviderCommand);
 
   // Add to subscriptions
-  context.subscriptions.push(completionProvider, refactorCmd, chatCmd, toggleCmd, statusBarItem);
+  context.subscriptions.push(completionProvider, refactorCmd, chatCmd, toggleCmd, selectProviderCmd, statusBarItem);
 
   // Watch for config changes
   const configWatcher = vscode.workspace.createFileSystemWatcher('**/.aistudio/config.json');

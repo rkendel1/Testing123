@@ -28,6 +28,10 @@
       {
         "command": "ai-coder.toggleAutocomplete",
         "title": "AI Coder: Toggle Autocomplete"
+      },
+      {
+        "command": "ai-coder.selectProvider",
+        "title": "AI Coder: Select Provider"
       }
     ],
     "configuration": {

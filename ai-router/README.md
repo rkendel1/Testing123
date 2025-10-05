@@ -71,7 +71,10 @@ Get current configuration (without API keys).
 {
   "provider": "ollama",
   "model": "codellama",
-  "availableProviders": ["ollama", "openai", "anthropic", "mistral", "together"]
+  "availableProviders": ["ollama", "openai", "anthropic", "mistral", "together", "aider"],
+  "cacheEnabled": true,
+  "cacheSize": 42,
+  "maxCacheSize": 100
 }
 ```
 
@@ -98,6 +101,71 @@ Health check endpoint.
 curl http://localhost:3000/health
 ```
 
+### POST /cache/clear
+
+Clear all cached responses.
+
+**Response:**
+```json
+{
+  "success": true,
+  "clearedEntries": 42,
+  "message": "Cache cleared successfully. Removed 42 entries."
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/cache/clear
+```
+
+### GET /cache/stats
+
+Get cache statistics.
+
+**Response:**
+```json
+{
+  "enabled": true,
+  "size": 42,
+  "maxSize": 100,
+  "ttl": 3600,
+  "hitRate": "Not tracked"
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:3000/cache/stats
+```
+
+### PUT /cache/toggle
+
+Enable or disable the cache.
+
+**Request:**
+```json
+{
+  "enabled": false
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "cacheEnabled": false,
+  "message": "Cache disabled successfully"
+}
+```
+
+**Example:**
+```bash
+curl -X PUT http://localhost:3000/cache/toggle \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": false}'
+```
+
 ## Configuration
 
 The AI Router reads configuration from `/workspace/.aistudio/config.json`:
@@ -110,12 +178,18 @@ The AI Router reads configuration from `/workspace/.aistudio/config.json`:
     "openai": "",
     "anthropic": "",
     "mistral": "",
-    "together": ""
+    "together": "",
+    "aider": ""
   },
   "preferences": {
     "autocomplete": true,
     "streaming": true,
     "maxTokens": 2048
+  },
+  "cache": {
+    "enabled": true,
+    "maxSize": 100,
+    "ttl": 3600
   }
 }
 ```
@@ -157,6 +231,14 @@ The AI Router reads configuration from `/workspace/.aistudio/config.json`:
 - **API Key**: Required in config.json or env var `TOGETHER_API_KEY`
 - **Endpoint**: `https://api.together.xyz/v1`
 
+### Aider
+
+- **Provider**: `aider`
+- **Models**: Supports various models including GPT-4, Claude, etc.
+- **API Key**: Required in config.json or env var `AIDER_API_KEY`
+- **Endpoint**: `https://api.aider.chat/v1`
+- **Description**: AI pair programming assistant with OpenAI-compatible API
+
 ## Environment Variables
 
 The router uses these environment variables as fallbacks:
@@ -167,6 +249,10 @@ The router uses these environment variables as fallbacks:
 - `ANTHROPIC_API_KEY`: Anthropic API key
 - `MISTRAL_API_KEY`: Mistral API key
 - `TOGETHER_API_KEY`: Together AI API key
+- `AIDER_API_KEY`: Aider API key
+- `ENABLE_CACHE`: Enable/disable response caching (default: true)
+- `MAX_CACHE_SIZE`: Maximum number of cached responses (default: 100)
+- `CACHE_TTL`: Cache time-to-live in seconds (default: 3600)
 
 ## Runtime Provider Switching
 
@@ -178,6 +264,78 @@ To switch providers without rebuilding:
 4. Next request will use the new provider
 
 No restart required!
+
+## Response Caching
+
+The AI Router includes an in-memory caching mechanism to reduce token usage and improve performance.
+
+### How it Works
+
+- Responses are cached based on a hash of the prompt, provider, and model
+- Cache entries expire after the configured TTL (default: 1 hour)
+- When the cache is full, the oldest entry is removed (LRU eviction)
+- Streaming responses are not cached (only non-streaming refactor requests)
+
+### Configuration
+
+Configure caching in `/workspace/.aistudio/config.json`:
+
+```json
+{
+  "cache": {
+    "enabled": true,
+    "maxSize": 100,
+    "ttl": 3600
+  }
+}
+```
+
+Or via environment variables:
+- `ENABLE_CACHE`: Set to `false` to disable (default: `true`)
+- `MAX_CACHE_SIZE`: Maximum cache entries (default: 100)
+- `CACHE_TTL`: Time-to-live in seconds (default: 3600)
+
+### Cache Management
+
+**Using the cache manager script (recommended):**
+```bash
+./cache-manager.sh stats     # Show cache statistics
+./cache-manager.sh clear     # Clear cache
+./cache-manager.sh enable    # Enable caching
+./cache-manager.sh disable   # Disable caching
+```
+
+**Manual API calls:**
+
+**Clear the cache:**
+```bash
+curl -X POST http://localhost:3000/cache/clear
+```
+
+**View cache statistics:**
+```bash
+curl http://localhost:3000/cache/stats
+```
+
+**Enable/disable cache at runtime:**
+```bash
+# Disable
+curl -X PUT http://localhost:3000/cache/toggle \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": false}'
+
+# Enable
+curl -X PUT http://localhost:3000/cache/toggle \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": true}'
+```
+
+### Benefits
+
+- **Reduced Token Usage**: Identical requests don't consume additional tokens
+- **Faster Responses**: Cached responses are returned instantly
+- **Cost Savings**: Especially beneficial for paid API providers
+- **Configurable**: Can be disabled or tuned based on your needs
 
 ## Error Handling
 

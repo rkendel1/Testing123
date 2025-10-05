@@ -8,6 +8,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PASSWORD=developer
 ENV DEFAULT_PROVIDER=ollama
 ENV DEFAULT_MODEL=codellama
+ENV ENABLE_CACHE=true
+ENV MAX_CACHE_SIZE=100
+ENV CACHE_TTL=3600
 
 # Install essential development tools and dependencies
 RUN apt-get update && apt-get install -y \

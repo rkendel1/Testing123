@@ -2,7 +2,12 @@
 
 A complete, AI-powered development environment in a single Docker container. Features provider-agnostic AI code completion, refactoring, real-time preview, and a browser-based IDE.
 
-> ⚠️ **New AI Features!** This repository has been upgraded to a full AI Development Studio with support for Ollama (local), OpenAI, Anthropic, Mistral, and Together AI. See [AI_STUDIO_README.md](AI_STUDIO_README.md) for complete documentation.
+> ⚠️ **New Features!** This repository now includes:
+> - **Aider Integration**: AI pair programming assistant support
+> - **Response Caching**: Reduce token usage and costs with intelligent caching
+> - See [AIDER_CACHING_GUIDE.md](AIDER_CACHING_GUIDE.md) for detailed setup and usage
+
+See [AI_STUDIO_README.md](AI_STUDIO_README.md) for complete AI features documentation.
 
 ## 🚀 Quick Start
 
@@ -49,8 +54,9 @@ Switch between AI providers without rebuilding:
 - **Anthropic** (Claude)
 - **Mistral** (Mistral Large)
 - **Together AI** (Llama, etc.)
+- **Aider** (AI pair programming assistant)
 
-Edit `/workspace/.aistudio/config.json` to switch providers on the fly.
+Edit `/workspace/.aistudio/config.json` to switch providers on the fly, or use the command palette: "AI Coder: Select Provider".
 
 ### Live Preview
 Real-time React preview on port 5173 with automatic reload when files change.
@@ -110,12 +116,52 @@ Edit `/workspace/.aistudio/config.json` to configure your AI provider:
     "openai": "sk-...",
     "anthropic": "sk-ant-...",
     "mistral": "...",
-    "together": "..."
+    "together": "...",
+    "aider": "..."
+  },
+  "cache": {
+    "enabled": true,
+    "maxSize": 100,
+    "ttl": 3600
   }
 }
 ```
 
+#### Configuring Aider
+To use Aider as your AI provider:
+1. Set `"provider": "aider"` in the config
+2. Add your Aider API key to `apiKeys.aider`
+3. Optionally specify the model (e.g., `"model": "gpt-4"`)
+
+You can also use the command palette: **AI Coder: Select Provider** to switch providers interactively.
+
 Changes take effect immediately - no container restart needed!
+
+### Cache Configuration
+
+The AI Router includes a built-in caching mechanism to reduce token usage and improve performance:
+
+- **enabled**: Enable or disable caching (default: true)
+- **maxSize**: Maximum number of cached responses (default: 100)
+- **ttl**: Cache time-to-live in seconds (default: 3600 = 1 hour)
+
+#### Cache Management
+- Clear cache: `curl -X POST http://localhost:3000/cache/clear`
+- View cache stats: `curl http://localhost:3000/cache/stats`
+- Toggle cache: `curl -X PUT http://localhost:3000/cache/toggle -H "Content-Type: application/json" -d '{"enabled": false}'`
+
+For easier cache management, use the included script:
+```bash
+./cache-manager.sh stats     # Show cache statistics
+./cache-manager.sh clear     # Clear cache
+./cache-manager.sh enable    # Enable caching
+./cache-manager.sh disable   # Disable caching
+```
+
+You can also configure cache via environment variables:
+- `ENABLE_CACHE`: Set to `false` to disable caching
+- `MAX_CACHE_SIZE`: Maximum cache entries (default: 100)
+- `CACHE_TTL`: Cache TTL in seconds (default: 3600)
 
 ### Changing the Password
 Edit the `docker-compose.yml` file and change the `PASSWORD` environment variable:
@@ -169,11 +215,20 @@ Your development environment will be ready in minutes!
 ├── Dockerfile             # Container definition
 ├── docker-compose.yml     # Compose configuration
 ├── start.sh              # Startup orchestration script
-└── AI_STUDIO_README.md   # Comprehensive AI studio docs
+├── cache-manager.sh       # Cache management utility
+├── AI_STUDIO_README.md   # Comprehensive AI studio docs
+└── AIDER_CACHING_GUIDE.md # Aider integration & caching guide
 ```
 ├── workspace/             # Your working directory (mounted volume)
 └── README.md              # This file
 ```
+
+## 📚 Documentation
+
+- **[AIDER_CACHING_GUIDE.md](AIDER_CACHING_GUIDE.md)** - Aider integration and caching setup
+- **[AI_STUDIO_README.md](AI_STUDIO_README.md)** - Complete AI studio documentation
+- **[ai-router/README.md](ai-router/README.md)** - AI Router API reference
+- **[extensions/ai-coder/README.md](extensions/ai-coder/README.md)** - VS Code extension guide
 
 ## 🛠 Usage Tips
 

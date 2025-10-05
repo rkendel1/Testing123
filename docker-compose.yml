@@ -19,6 +19,10 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
       - TOGETHER_API_KEY=${TOGETHER_API_KEY:-}
+      - AIDER_API_KEY=${AIDER_API_KEY:-}
+      - ENABLE_CACHE=${ENABLE_CACHE:-true}
+      - MAX_CACHE_SIZE=${MAX_CACHE_SIZE:-100}
+      - CACHE_TTL=${CACHE_TTL:-3600}
     restart: unless-stopped
     stdin_open: true
     tty: true

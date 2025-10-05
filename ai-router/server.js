@@ -3,6 +3,7 @@ const cors = require('cors');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 // AI Router Server
 // Routes requests from VS Code extension to selected AI model provider
@@ -15,6 +16,63 @@ app.use(express.json({ limit: '10mb' }));
 
 // Config file path
 const CONFIG_PATH = '/workspace/.aistudio/config.json';
+
+// In-memory cache for AI responses
+const responseCache = new Map();
+let cacheEnabled = process.env.ENABLE_CACHE !== 'false'; // Enabled by default
+const MAX_CACHE_SIZE = parseInt(process.env.MAX_CACHE_SIZE || '100');
+const CACHE_TTL = parseInt(process.env.CACHE_TTL || '3600') * 1000; // Default 1 hour in ms
+
+/**
+ * Generate cache key from prompt and config
+ */
+function getCacheKey(prompt, provider, model) {
+  const hash = crypto.createHash('md5').update(`${provider}:${model}:${prompt}`).digest('hex');
+  return hash;
+}
+
+/**
+ * Get cached response if available and not expired
+ */
+function getCachedResponse(key) {
+  if (!cacheEnabled) return null;
+  
+  const cached = responseCache.get(key);
+  if (!cached) return null;
+  
+  // Check if cache entry has expired
+  if (Date.now() - cached.timestamp > CACHE_TTL) {
+    responseCache.delete(key);
+    return null;
+  }
+  
+  return cached.data;
+}
+
+/**
+ * Store response in cache
+ */
+function setCachedResponse(key, data) {
+  if (!cacheEnabled) return;
+  
+  // Implement simple LRU by removing oldest entry if cache is full
+  if (responseCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = responseCache.keys().next().value;
+    responseCache.delete(firstKey);
+  }
+  
+  responseCache.set(key, {
+    data: data,
+    timestamp: Date.now()
+  });
+}
+
+/**
+ * Clear cache
+ */
+function clearCache() {
+  responseCache.clear();
+}
 
 /**
  * Load configuration from .aistudio/config.json
@@ -38,7 +96,8 @@ function loadConfig() {
       openai: process.env.OPENAI_API_KEY || '',
       anthropic: process.env.ANTHROPIC_API_KEY || '',
       mistral: process.env.MISTRAL_API_KEY || '',
-      together: process.env.TOGETHER_API_KEY || ''
+      together: process.env.TOGETHER_API_KEY || '',
+      aider: process.env.AIDER_API_KEY || ''
     }
   };
 }
@@ -152,6 +211,29 @@ async function routeToTogether(prompt, model, apiKey, stream = true) {
 }
 
 /**
+ * Route request to Aider
+ */
+async function routeToAider(prompt, model, apiKey, stream = true) {
+  try {
+    // Aider uses OpenAI-compatible API
+    const response = await axios.post('https://api.aider.chat/v1/chat/completions', {
+      model: model,
+      messages: [{ role: 'user', content: prompt }],
+      stream: stream
+    }, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      responseType: stream ? 'stream' : 'json'
+    });
+    return response;
+  } catch (error) {
+    throw new Error(`Aider error: ${error.message}`);
+  }
+}
+
+/**
  * POST /complete - Streaming code completion endpoint
  * Accepts code context and returns completions inline
  */
@@ -168,6 +250,17 @@ app.post('/complete', async (req, res) => {
     const fullPrompt = context ? `${context}\n\n${prompt}` : prompt;
 
     console.log(`[/complete] Provider: ${config.provider}, Model: ${config.model}`);
+
+    // Check cache for non-streaming requests
+    const cacheKey = getCacheKey(fullPrompt, config.provider, config.model);
+    const cachedResponse = getCachedResponse(cacheKey);
+    
+    if (cachedResponse) {
+      console.log(`[/complete] Cache hit for key: ${cacheKey}`);
+      // For streaming responses, we can't use cache effectively
+      // So we only cache non-streaming responses
+      return res.json(cachedResponse);
+    }
 
     // Set headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
@@ -192,6 +285,9 @@ app.post('/complete', async (req, res) => {
         break;
       case 'together':
         providerResponse = await routeToTogether(fullPrompt, config.model, config.apiKeys.together, true);
+        break;
+      case 'aider':
+        providerResponse = await routeToAider(fullPrompt, config.model, config.apiKeys.aider, true);
         break;
       default:
         return res.status(400).json({ error: `Unknown provider: ${config.provider}` });
@@ -239,6 +335,20 @@ app.post('/refactor', async (req, res) => {
 
     let providerResponse;
 
+    // Check cache first for non-streaming refactor requests
+    const cacheKey = getCacheKey(prompt, config.provider, config.model);
+    const cachedResponse = getCachedResponse(cacheKey);
+    
+    if (cachedResponse) {
+      console.log(`[/refactor] Cache hit for key: ${cacheKey}`);
+      return res.json({
+        result: cachedResponse,
+        provider: config.provider,
+        model: config.model,
+        cached: true
+      });
+    }
+
     // Route to appropriate provider (non-streaming for refactor)
     switch (config.provider.toLowerCase()) {
       case 'ollama':
@@ -256,9 +366,15 @@ app.post('/refactor', async (req, res) => {
       case 'together':
         providerResponse = await routeToTogether(prompt, config.model, config.apiKeys.together, false);
         break;
+      case 'aider':
+        providerResponse = await routeToAider(prompt, config.model, config.apiKeys.aider, false);
+        break;
       default:
         return res.status(400).json({ error: `Unknown provider: ${config.provider}` });
     }
+
+    // Cache the response
+    setCachedResponse(cacheKey, providerResponse.data);
 
     res.json({ 
       result: providerResponse.data,
@@ -282,7 +398,10 @@ app.get('/config', (req, res) => {
     res.json({
       provider: config.provider,
       model: config.model,
-      availableProviders: ['ollama', 'openai', 'anthropic', 'mistral', 'together']
+      availableProviders: ['ollama', 'openai', 'anthropic', 'mistral', 'together', 'aider'],
+      cacheEnabled: cacheEnabled,
+      cacheSize: responseCache.size,
+      maxCacheSize: MAX_CACHE_SIZE
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -300,6 +419,66 @@ app.get('/health', (req, res) => {
   });
 });
 
+/**
+ * POST /cache/clear - Clear the response cache
+ */
+app.post('/cache/clear', (req, res) => {
+  try {
+    const sizeBefore = responseCache.size;
+    clearCache();
+    console.log(`[/cache/clear] Cleared ${sizeBefore} cached entries`);
+    res.json({
+      success: true,
+      clearedEntries: sizeBefore,
+      message: `Cache cleared successfully. Removed ${sizeBefore} entries.`
+    });
+  } catch (error) {
+    console.error('[/cache/clear] Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /cache/stats - Get cache statistics
+ */
+app.get('/cache/stats', (req, res) => {
+  try {
+    res.json({
+      enabled: cacheEnabled,
+      size: responseCache.size,
+      maxSize: MAX_CACHE_SIZE,
+      ttl: CACHE_TTL / 1000, // Return in seconds
+      hitRate: 'Not tracked' // Could be implemented with counters
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * PUT /cache/toggle - Enable or disable cache
+ */
+app.put('/cache/toggle', (req, res) => {
+  try {
+    const { enabled } = req.body;
+    if (typeof enabled !== 'boolean') {
+      return res.status(400).json({ error: 'enabled parameter must be a boolean' });
+    }
+    
+    cacheEnabled = enabled;
+    console.log(`[/cache/toggle] Cache ${enabled ? 'enabled' : 'disabled'}`);
+    
+    res.json({
+      success: true,
+      cacheEnabled: cacheEnabled,
+      message: `Cache ${enabled ? 'enabled' : 'disabled'} successfully`
+    });
+  } catch (error) {
+    console.error('[/cache/toggle] Error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log('=========================================');
@@ -311,5 +490,8 @@ app.listen(PORT, '0.0.0.0', () => {
   const config = loadConfig();
   console.log(`Current provider: ${config.provider}`);
   console.log(`Current model: ${config.model}`);
+  console.log(`Cache enabled: ${cacheEnabled}`);
+  console.log(`Max cache size: ${MAX_CACHE_SIZE} entries`);
+  console.log(`Cache TTL: ${CACHE_TTL / 1000} seconds`);
   console.log('=========================================');
 });
