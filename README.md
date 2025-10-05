@@ -2,7 +2,12 @@
 
 A complete, AI-powered development environment in a single Docker container. Features provider-agnostic AI code completion, refactoring, real-time preview, and a browser-based IDE.
 
-> ⚠️ **New AI Features!** This repository has been upgraded to a full AI Development Studio with support for Ollama (local), OpenAI, Anthropic, Mistral, and Together AI. See [AI_STUDIO_README.md](AI_STUDIO_README.md) for complete documentation.
+> ⚠️ **New Features!** This repository now includes:
+> - **Aider Integration**: AI pair programming assistant support
+> - **Response Caching**: Reduce token usage and costs with intelligent caching
+> - See [AIDER_CACHING_GUIDE.md](AIDER_CACHING_GUIDE.md) for detailed setup and usage
+
+See [AI_STUDIO_README.md](AI_STUDIO_README.md) for complete AI features documentation.
 
 ## 🚀 Quick Start
 
@@ -210,11 +215,20 @@ Your development environment will be ready in minutes!
 ├── Dockerfile             # Container definition
 ├── docker-compose.yml     # Compose configuration
 ├── start.sh              # Startup orchestration script
-└── AI_STUDIO_README.md   # Comprehensive AI studio docs
+├── cache-manager.sh       # Cache management utility
+├── AI_STUDIO_README.md   # Comprehensive AI studio docs
+└── AIDER_CACHING_GUIDE.md # Aider integration & caching guide
 ```
 ├── workspace/             # Your working directory (mounted volume)
 └── README.md              # This file
 ```
+
+## 📚 Documentation
+
+- **[AIDER_CACHING_GUIDE.md](AIDER_CACHING_GUIDE.md)** - Aider integration and caching setup
+- **[AI_STUDIO_README.md](AI_STUDIO_README.md)** - Complete AI studio documentation
+- **[ai-router/README.md](ai-router/README.md)** - AI Router API reference
+- **[extensions/ai-coder/README.md](extensions/ai-coder/README.md)** - VS Code extension guide
 
 ## 🛠 Usage Tips
 
