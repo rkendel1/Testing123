@@ -62,6 +62,10 @@ RUN useradd -m -s /bin/bash -G sudo developer && \
 # Set up workspace directory
 RUN mkdir -p /workspace && chown -R developer:developer /workspace
 
+# Create directories for copied files
+RUN mkdir -p /home/developer/.local/share/code-server/User && \
+    chown -R developer:developer /home/developer
+
 # Copy AI Router source code
 COPY --chown=developer:developer ai-router /home/developer/ai-router
 
