@@ -2,6 +2,7 @@
 workspace/*
 !workspace/.gitkeep
 !workspace/WELCOME.md
+!workspace/examples/
 
 # Docker volumes
 *.log
