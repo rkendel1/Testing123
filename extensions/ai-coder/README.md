@@ -43,6 +43,18 @@ Enable or disable AI autocomplete.
 - **Status Bar**: Click the AI icon in status bar
 - **Default**: Enabled
 
+### 5. Select Provider
+
+Interactively switch between AI providers.
+
+- **Command**: `AI Coder: Select Provider`
+- **Keyboard**: `F1` > "AI Coder: Select Provider"
+- **How it works**:
+  1. Run command
+  2. Choose from available providers (Ollama, OpenAI, Anthropic, Mistral, Together, Aider)
+  3. Provider is updated in config.json
+  4. Changes take effect immediately
+
 ## Configuration
 
 ### Extension Settings
@@ -66,9 +78,29 @@ The extension reads the current AI provider from `/workspace/.aistudio/config.js
 ```json
 {
   "provider": "ollama",
-  "model": "codellama"
+  "model": "codellama",
+  "apiKeys": {
+    "openai": "",
+    "anthropic": "",
+    "mistral": "",
+    "together": "",
+    "aider": ""
+  }
 }
 ```
+
+#### Supported Providers
+
+- **ollama**: Local AI (no API key needed)
+- **openai**: GPT-4, GPT-3.5 (requires API key)
+- **anthropic**: Claude models (requires API key)
+- **mistral**: Mistral models (requires API key)
+- **together**: Together AI models (requires API key)
+- **aider**: AI pair programming assistant (requires API key)
+
+To switch providers, either:
+1. Edit the config file directly, or
+2. Use the `AI Coder: Select Provider` command
 
 The status bar displays the current provider and model.
 
@@ -91,6 +123,7 @@ All commands available via Command Palette (`F1`):
 | `AI Coder: Refactor with AI` | Refactor code with AI |
 | `AI Coder: Open Chat` | Open chat panel |
 | `AI Coder: Toggle Autocomplete` | Enable/disable autocomplete |
+| `AI Coder: Select Provider` | Switch AI provider |
 
 ## Usage Examples
 
@@ -136,18 +169,18 @@ All commands available via Command Palette (`F1`):
        │ HTTP POST
        │
        ▼
-┌─────────────┐
-│  AI Router  │
-│  Port 3000  │
+┌─────────────┐      ┌──────────┐
+│  AI Router  │─────▶│  Cache   │
+│  Port 3000  │      └──────────┘
 └──────┬──────┘
        │
        │ Route to provider
        │
        ▼
-┌──────────────┬─────────┬──────────┬─────────┬─────────┐
-│   Ollama     │ OpenAI  │Anthropic │ Mistral │Together │
-│   (local)    │ (remote)│ (remote) │(remote) │(remote) │
-└──────────────┴─────────┴──────────┴─────────┴─────────┘
+┌──────────────┬─────────┬──────────┬─────────┬─────────┬───────┐
+│   Ollama     │ OpenAI  │Anthropic │ Mistral │Together │ Aider │
+│   (local)    │ (remote)│ (remote) │(remote) │(remote) │(remote)│
+└──────────────┴─────────┴──────────┴─────────┴─────────┴───────┘
 ```
 
 ## Troubleshooting

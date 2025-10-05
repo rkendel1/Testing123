@@ -145,6 +145,14 @@ The AI Router includes a built-in caching mechanism to reduce token usage and im
 - View cache stats: `curl http://localhost:3000/cache/stats`
 - Toggle cache: `curl -X PUT http://localhost:3000/cache/toggle -H "Content-Type: application/json" -d '{"enabled": false}'`
 
+For easier cache management, use the included script:
+```bash
+./cache-manager.sh stats     # Show cache statistics
+./cache-manager.sh clear     # Clear cache
+./cache-manager.sh enable    # Enable caching
+./cache-manager.sh disable   # Disable caching
+```
+
 You can also configure cache via environment variables:
 - `ENABLE_CACHE`: Set to `false` to disable caching
 - `MAX_CACHE_SIZE`: Maximum cache entries (default: 100)

@@ -297,6 +297,16 @@ Or via environment variables:
 
 ### Cache Management
 
+**Using the cache manager script (recommended):**
+```bash
+./cache-manager.sh stats     # Show cache statistics
+./cache-manager.sh clear     # Clear cache
+./cache-manager.sh enable    # Enable caching
+./cache-manager.sh disable   # Disable caching
+```
+
+**Manual API calls:**
+
 **Clear the cache:**
 ```bash
 curl -X POST http://localhost:3000/cache/clear
