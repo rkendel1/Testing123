@@ -55,6 +55,43 @@ Interactively switch between AI providers.
   3. Provider is updated in config.json
   4. Changes take effect immediately
 
+### 6. Natural Language Query
+
+Interact with any model or provider using natural language queries and refine CLI commands.
+
+- **Command**: `AI Coder: Natural Language Query`
+- **Keyboard**: `F1` > "AI Coder: Natural Language Query"
+- **Features**:
+  - Send natural language queries to the configured AI provider
+  - Refine natural language queries for specific CLI operations (GitHub CLI, Supabase CLI, Git, NPM)
+  - Get AI-powered assistance for command-line operations
+- **How it works**:
+  1. Run command to open Natural Language Query panel
+  2. Enter your query in the General Query section, or
+  3. Use CLI Command Refinement to refine specific commands
+  4. Review AI responses and refined commands
+
+### 7. Generate Code with AI
+
+Request, review, and apply AI-generated code directly within the IDE.
+
+- **Command**: `AI Coder: Generate Code with AI`
+- **Keyboard**: `F1` > "AI Coder: Generate Code"
+- **Features**:
+  - Request code generation with natural language instructions
+  - Review generated code before applying
+  - Apply code to current file or create new file
+  - Reject generated code if not suitable
+  - Request changes or refinements to generated code
+- **How it works**:
+  1. Run command and enter code generation instruction
+  2. Wait for AI to generate code
+  3. Review the generated code
+  4. Choose from:
+     - **Apply Code**: Insert code at cursor position or create new file
+     - **Reject**: Dismiss the generated code
+     - **Request Changes**: Provide feedback for refinement
+
 ## Configuration
 
 ### Extension Settings
@@ -124,6 +161,8 @@ All commands available via Command Palette (`F1`):
 | `AI Coder: Open Chat` | Open chat panel |
 | `AI Coder: Toggle Autocomplete` | Enable/disable autocomplete |
 | `AI Coder: Select Provider` | Switch AI provider |
+| `AI Coder: Natural Language Query` | Send natural language queries and refine CLI commands |
+| `AI Coder: Generate Code with AI` | Request, review, and apply AI-generated code |
 
 ## Usage Examples
 
