@@ -1,6 +1,7 @@
 # Workspace files (user's working directory)
 workspace/*
 !workspace/.gitkeep
+!workspace/WELCOME.md
 
 # Docker volumes
 *.log
