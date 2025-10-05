@@ -47,6 +47,19 @@ AI-powered autocomplete appears as ghost text while you type. Just press Tab to 
 ### AI-Assisted Refactoring
 Select code, run "AI Coder: Refactor with AI", describe what you want, and get instant refactoring suggestions.
 
+### Natural Language Interaction (NEW!)
+- **Natural Language Queries**: Send queries to any AI provider in plain English
+- **CLI Command Refinement**: Refine commands for GitHub CLI, Supabase CLI, Git, and NPM
+- **Interactive Query Panel**: Dedicated interface for natural language interactions
+
+### AI Code Generation (NEW!)
+- **Request Code**: Describe what you need in natural language
+- **Review Before Applying**: See generated code before it's added to your project
+- **Apply, Reject, or Refine**: Full control with options to:
+  - ✓ Apply code to current file or create new file
+  - ✗ Reject if not suitable
+  - ↻ Request changes for iterative refinement
+
 ### Multi-Provider Support
 Switch between AI providers without rebuilding:
 - **Ollama** (local, no API key needed)
@@ -190,6 +203,36 @@ This repository includes a `.devcontainer` configuration, making it compatible w
 
 Your development environment will be ready in minutes!
 
+### Per-App Dev Containers (NEW!)
+
+Each app now has its own dev container configuration for isolated development:
+
+- **ai-router/.devcontainer**: Node.js environment for AI Router development
+- **preview-app/.devcontainer**: React/Vite environment for preview app development
+- **extensions/ai-coder/.devcontainer**: VS Code extension development environment
+
+To use app-specific dev containers:
+1. Open the app folder in VS Code
+2. Click "Reopen in Container" when prompted
+3. VS Code will build and connect to the app-specific container
+
+## 📖 Project Documentation (NEW!)
+
+Each app now includes comprehensive documentation:
+
+### Documentation Files
+- **CODING_STANDARDS.md**: Code style guidelines, best practices, and conventions
+- **PROJECT_OVERVIEW.md**: Project purpose, architecture, and workflows
+- **DESIGN_PATTERNS.md**: Architectural patterns and design decisions
+- **TECH_STACK.md**: Technology choices, dependencies, and versions
+
+### Available for Each App
+- AI Router (`ai-router/`)
+- Preview App (`preview-app/`)
+- AI Coder Extension (`extensions/ai-coder/`)
+
+These documents help developers understand the codebase, maintain consistency, and contribute effectively.
+
 ## 📁 Directory Structure
 
 ```
@@ -197,15 +240,31 @@ Your development environment will be ready in minutes!
 ├── ai-router/              # AI Router service (Node.js/Express)
 │   ├── server.js          # Main router server
 │   ├── package.json       # Dependencies
-│   └── README.md          # API documentation
+│   ├── README.md          # API documentation
+│   ├── .devcontainer/     # Dev container config (NEW!)
+│   ├── CODING_STANDARDS.md # Coding guidelines (NEW!)
+│   ├── PROJECT_OVERVIEW.md # Project documentation (NEW!)
+│   ├── DESIGN_PATTERNS.md  # Architecture patterns (NEW!)
+│   └── TECH_STACK.md      # Technology details (NEW!)
 ├── extensions/ai-coder/   # VS Code extension for AI features
 │   ├── src/extension.js   # Extension implementation
 │   ├── package.json       # Extension manifest
-│   └── README.md          # Extension documentation
+│   ├── README.md          # Extension documentation
+│   ├── .devcontainer/     # Dev container config (NEW!)
+│   ├── CODING_STANDARDS.md # Coding guidelines (NEW!)
+│   ├── PROJECT_OVERVIEW.md # Project documentation (NEW!)
+│   ├── DESIGN_PATTERNS.md  # Architecture patterns (NEW!)
+│   ├── TECH_STACK.md      # Technology details (NEW!)
+│   └── FEATURE_GUIDE.md   # New features guide (NEW!)
 ├── preview-app/           # Vite React live preview app
 │   ├── src/               # React components
 │   ├── vite.config.js     # Vite configuration
-│   └── package.json       # Dependencies
+│   ├── package.json       # Dependencies
+│   ├── .devcontainer/     # Dev container config (NEW!)
+│   ├── CODING_STANDARDS.md # Coding guidelines (NEW!)
+│   ├── PROJECT_OVERVIEW.md # Project documentation (NEW!)
+│   ├── DESIGN_PATTERNS.md  # Architecture patterns (NEW!)
+│   └── TECH_STACK.md      # Technology details (NEW!)
 ├── config/code-server/    # VS Code settings
 │   └── settings.json      # Default editor settings
 ├── workspace/             # Your workspace (volume mounted)
@@ -219,16 +278,36 @@ Your development environment will be ready in minutes!
 ├── AI_STUDIO_README.md   # Comprehensive AI studio docs
 └── AIDER_CACHING_GUIDE.md # Aider integration & caching guide
 ```
-├── workspace/             # Your working directory (mounted volume)
-└── README.md              # This file
-```
 
 ## 📚 Documentation
 
+### Main Documentation
 - **[AIDER_CACHING_GUIDE.md](AIDER_CACHING_GUIDE.md)** - Aider integration and caching setup
 - **[AI_STUDIO_README.md](AI_STUDIO_README.md)** - Complete AI studio documentation
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Technical architecture details
+
+### Component Documentation
+
+#### AI Router
 - **[ai-router/README.md](ai-router/README.md)** - AI Router API reference
+- **[ai-router/CODING_STANDARDS.md](ai-router/CODING_STANDARDS.md)** - Code style guide
+- **[ai-router/PROJECT_OVERVIEW.md](ai-router/PROJECT_OVERVIEW.md)** - Project documentation
+- **[ai-router/DESIGN_PATTERNS.md](ai-router/DESIGN_PATTERNS.md)** - Architecture patterns
+- **[ai-router/TECH_STACK.md](ai-router/TECH_STACK.md)** - Technology stack details
+
+#### Preview App
+- **[preview-app/CODING_STANDARDS.md](preview-app/CODING_STANDARDS.md)** - React/Vite style guide
+- **[preview-app/PROJECT_OVERVIEW.md](preview-app/PROJECT_OVERVIEW.md)** - Project documentation
+- **[preview-app/DESIGN_PATTERNS.md](preview-app/DESIGN_PATTERNS.md)** - React patterns
+- **[preview-app/TECH_STACK.md](preview-app/TECH_STACK.md)** - Technology stack details
+
+#### AI Coder Extension
 - **[extensions/ai-coder/README.md](extensions/ai-coder/README.md)** - VS Code extension guide
+- **[extensions/ai-coder/FEATURE_GUIDE.md](extensions/ai-coder/FEATURE_GUIDE.md)** - New features guide
+- **[extensions/ai-coder/CODING_STANDARDS.md](extensions/ai-coder/CODING_STANDARDS.md)** - Extension development guide
+- **[extensions/ai-coder/PROJECT_OVERVIEW.md](extensions/ai-coder/PROJECT_OVERVIEW.md)** - Project documentation
+- **[extensions/ai-coder/DESIGN_PATTERNS.md](extensions/ai-coder/DESIGN_PATTERNS.md)** - Extension patterns
+- **[extensions/ai-coder/TECH_STACK.md](extensions/ai-coder/TECH_STACK.md)** - Technology stack details
 
 ## 🛠 Usage Tips
 
@@ -248,6 +327,18 @@ Your development environment will be ready in minutes!
 1. Press `F1` and type "AI Coder: Open Chat"
 2. Ask questions or request code changes
 3. Get contextual help
+
+**Natural Language Query (NEW!):**
+1. Press `F1` and type "AI Coder: Natural Language Query"
+2. Send general queries or refine CLI commands
+3. Choose CLI type (GitHub CLI, Supabase CLI, Git, NPM)
+4. Get AI-powered command assistance
+
+**Generate Code (NEW!):**
+1. Press `F1` and type "AI Coder: Generate Code with AI"
+2. Describe the code you need
+3. Review the generated code
+4. Apply, reject, or request changes
 
 **Switch AI Providers:**
 Edit `/workspace/.aistudio/config.json` and change the `provider` field. Changes take effect immediately!
