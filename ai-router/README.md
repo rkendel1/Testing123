@@ -2,6 +2,43 @@
 
 The AI Router is a Node.js/Express service that routes requests from the VS Code extension to various AI model providers.
 
+## Provider-Agnostic Architecture
+
+The AI Router implements a **provider-agnostic design** that abstracts away the differences between various AI providers. This means:
+
+- ✅ **Unified API**: All providers are accessed through the same endpoints (`/complete`, `/refactor`)
+- ✅ **Automatic Routing**: Requests are automatically routed to the configured provider
+- ✅ **Consistent Response Format**: Responses are normalized across providers
+- ✅ **Seamless Switching**: Change providers by updating configuration, no code changes needed
+- ✅ **Natural Language Support**: All providers support the same natural language queries
+
+### Supported Providers
+
+1. **Ollama** - Local AI models (no API key required)
+2. **OpenAI** - GPT-3.5, GPT-4 (API key required)
+3. **Anthropic** - Claude models (API key required)
+4. **Mistral** - Mistral models (API key required)
+5. **Together AI** - Open-source models (API key required)
+6. **Aider** - AI pair programming (API key required)
+
+### How It Works
+
+```
+VS Code Extension
+      ↓
+  (Natural Language Query)
+      ↓
+  AI Router (/complete)
+      ↓
+  (Routes based on config.json)
+      ↓
+┌─────┴─────┬─────────┬──────────┬─────────┬─────────┬───────┐
+│  Ollama   │ OpenAI  │Anthropic │ Mistral │Together │ Aider │
+└───────────┴─────────┴──────────┴─────────┴─────────┴───────┘
+```
+
+The router handles all provider-specific API differences internally, so clients (like the VS Code extension) can use a uniform interface.
+
 ## Endpoints
 
 ### POST /complete
