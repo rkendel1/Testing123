@@ -1,0 +1,15 @@
+{
+  "provider": "ollama",
+  "model": "codellama",
+  "apiKeys": {
+    "openai": "",
+    "anthropic": "",
+    "mistral": "",
+    "together": ""
+  },
+  "preferences": {
+    "autocomplete": true,
+    "streaming": true,
+    "maxTokens": 2048
+  }
+}

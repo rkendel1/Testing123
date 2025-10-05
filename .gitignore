@@ -3,6 +3,7 @@ workspace/*
 !workspace/.gitkeep
 !workspace/WELCOME.md
 !workspace/examples/
+!workspace/.aistudio/
 
 # Docker volumes
 *.log
@@ -30,3 +31,7 @@ env/
 dist/
 build/
 *.egg-info/
+
+# Temporary files
+/tmp/
+*.tmp
