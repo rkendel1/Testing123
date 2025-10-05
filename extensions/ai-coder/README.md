@@ -4,6 +4,21 @@ VS Code extension for AI-powered code completion and refactoring.
 
 ## Features
 
+### Overview: Provider-Agnostic Natural Language Interface
+
+The AI Coder extension provides a **unified natural language interface** that works seamlessly across all supported AI providers. You can:
+
+- Use the same natural language commands regardless of the underlying provider (Ollama, OpenAI, Anthropic, Mistral, Together, Aider)
+- Switch providers without changing your workflow or commands
+- Get consistent, high-quality responses from any configured provider
+- Focus on your coding tasks, not provider-specific syntax
+
+**Key Benefits**:
+- 🔄 **Provider Agnostic**: Write queries once, use with any provider
+- 🚀 **Seamless Switching**: Change providers instantly with `AI Coder: Select Provider`
+- 📝 **Natural Language**: No need to learn provider-specific APIs or syntax
+- ⚡ **Uniform Experience**: Same interface, same commands, different providers
+
 ### 1. Inline Autocomplete
 
 AI-powered code completions appear as ghost text as you type.
@@ -57,40 +72,61 @@ Interactively switch between AI providers.
 
 ### 6. Natural Language Query
 
-Interact with any model or provider using natural language queries and refine CLI commands.
+Interact with **any configured AI provider** using natural language queries and refine CLI commands.
 
 - **Command**: `AI Coder: Natural Language Query`
 - **Keyboard**: `F1` > "AI Coder: Natural Language Query"
+- **Provider Support**: Works uniformly with all supported providers (Ollama, OpenAI, Anthropic, Mistral, Together, Aider)
 - **Features**:
   - Send natural language queries to the configured AI provider
+  - Get responses from any provider without provider-specific syntax
   - Refine natural language queries for specific CLI operations (GitHub CLI, Supabase CLI, Git, NPM)
   - Get AI-powered assistance for command-line operations
+  - Seamless provider switching - no changes needed to your queries
 - **How it works**:
   1. Run command to open Natural Language Query panel
-  2. Enter your query in the General Query section, or
-  3. Use CLI Command Refinement to refine specific commands
-  4. Review AI responses and refined commands
+  2. Enter your query in the General Query section (e.g., "Generate a function to calculate tax")
+  3. The query is automatically routed to your configured provider
+  4. Review AI responses - the interface shows which provider handled your request
+  5. Switch providers anytime using `AI Coder: Select Provider` without changing your workflow
+- **Examples**:
+  - "Generate a function to calculate tax"
+  - "Explain how async/await works in JavaScript"
+  - "Create a REST API endpoint for user authentication"
+  - "How do I implement rate limiting in Express?"
+- **CLI Command Refinement**:
+  1. Select a CLI type (GitHub, Supabase, Git, NPM)
+  2. Enter original command or description
+  3. Describe how you want to refine it
+  4. Get refined command from your configured provider
 
 ### 7. Generate Code with AI
 
-Request, review, and apply AI-generated code directly within the IDE.
+Request, review, and apply AI-generated code directly within the IDE using **any configured AI provider**.
 
 - **Command**: `AI Coder: Generate Code with AI`
 - **Keyboard**: `F1` > "AI Coder: Generate Code"
+- **Provider Support**: Works uniformly with all supported providers (Ollama, OpenAI, Anthropic, Mistral, Together, Aider)
 - **Features**:
   - Request code generation with natural language instructions
   - Review generated code before applying
   - Apply code to current file or create new file
   - Reject generated code if not suitable
   - Request changes or refinements to generated code
+  - Provider-agnostic interface - same workflow for all providers
 - **How it works**:
   1. Run command and enter code generation instruction
-  2. Wait for AI to generate code
+  2. Wait for AI to generate code (routed automatically to your configured provider)
   3. Review the generated code
   4. Choose from:
      - **Apply Code**: Insert code at cursor position or create new file
      - **Reject**: Dismiss the generated code
      - **Request Changes**: Provide feedback for refinement
+- **Examples**:
+  - "Create a REST API endpoint for user authentication"
+  - "Generate a function to validate email addresses"
+  - "Create a React component for a login form"
+  - "Write unit tests for this function"
 
 ## Configuration
 
@@ -166,7 +202,33 @@ All commands available via Command Palette (`F1`):
 
 ## Usage Examples
 
-### Example 1: Code Completion
+### Example 1: Provider-Agnostic Natural Language Query
+
+**Scenario**: Generate a tax calculation function using different providers
+
+1. **Using Ollama (local)**:
+   - Run `AI Coder: Natural Language Query`
+   - Current provider shows: `ollama/codellama`
+   - Enter: "Generate a function to calculate tax"
+   - Get response tailored to your request
+
+2. **Switch to OpenAI**:
+   - Run `AI Coder: Select Provider`
+   - Choose `openai`
+   - Run `AI Coder: Natural Language Query`
+   - Enter the **same query**: "Generate a function to calculate tax"
+   - Get response from OpenAI - no syntax changes needed!
+
+3. **Switch to Anthropic Claude**:
+   - Run `AI Coder: Select Provider`
+   - Choose `anthropic`
+   - Run `AI Coder: Natural Language Query`
+   - Enter the **same query**: "Generate a function to calculate tax"
+   - Get response from Claude - same interface, different provider!
+
+**Key Point**: The natural language interface abstracts away provider differences. Your queries work uniformly across all providers.
+
+### Example 2: Code Completion
 
 1. Start typing a function:
    ```javascript
@@ -182,7 +244,7 @@ All commands available via Command Palette (`F1`):
 
 3. Press `Tab` to accept
 
-### Example 2: Refactoring
+### Example 3: Refactoring
 
 1. Select code to refactor
 2. Run `AI Coder: Refactor with AI`
@@ -190,12 +252,38 @@ All commands available via Command Palette (`F1`):
 4. Review suggested changes
 5. Apply or modify as needed
 
-### Example 3: Chat
+### Example 4: Chat
 
 1. Run `AI Coder: Open Chat`
 2. Ask: "How do I implement authentication in Express?"
 3. Get AI response with code examples
 4. Copy code to your project
+
+### Example 5: Cross-Provider Code Generation
+
+**Scenario**: Generate the same code using different providers to compare outputs
+
+1. **With Ollama**:
+   - Current provider: `ollama/codellama`
+   - Run `AI Coder: Generate Code with AI`
+   - Enter: "Create a REST API endpoint for user authentication"
+   - Review code generated by Ollama
+
+2. **With OpenAI GPT-4**:
+   - Run `AI Coder: Select Provider` → Choose `openai`
+   - Run `AI Coder: Generate Code with AI`
+   - Enter: "Create a REST API endpoint for user authentication"
+   - Review code generated by GPT-4
+   - Apply the version you prefer
+
+3. **With Anthropic Claude**:
+   - Run `AI Coder: Select Provider` → Choose `anthropic`
+   - Run `AI Coder: Generate Code with AI`
+   - Enter: "Create a REST API endpoint for user authentication"
+   - Review code generated by Claude
+   - Compare all three versions
+
+**Benefit**: The unified interface lets you quickly test multiple providers to find the best solution for your specific use case.
 
 ## How It Works
 

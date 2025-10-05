@@ -423,19 +423,28 @@ function getNaturalLanguageWebviewContent(provider, model) {
 <body>
     <div class="header">
         <h2>AI Natural Language Query</h2>
-        <p>Provider: ${provider} | Model: ${model}</p>
+        <p><strong>Current Provider:</strong> ${provider} | <strong>Model:</strong> ${model}</p>
+        <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">
+            This interface works seamlessly with all configured providers.
+            <br/>Use natural language to interact with any AI provider without provider-specific commands.
+        </p>
     </div>
     
     <div class="section">
         <h3>General Query</h3>
-        <textarea id="queryInput" placeholder="Enter your natural language query or question..."></textarea>
+        <p style="font-size: 0.9em; margin-bottom: 10px;">Ask questions, request code generation, or get AI assistance for any task.</p>
+        <textarea id="queryInput" placeholder="e.g., Generate a function to calculate tax, Explain how async/await works, Create a REST API endpoint..."></textarea>
         <button onclick="sendQuery()">Send Query</button>
         <div id="queryResponse" class="response hidden"></div>
+        <div id="queryProviderInfo" class="hidden" style="font-size: 0.85em; margin-top: 5px; color: var(--vscode-descriptionForeground);"></div>
     </div>
 
     <div class="section">
         <h3>CLI Command Refinement</h3>
-        <p>Refine natural language queries for specific CLI operations</p>
+        <p style="font-size: 0.9em; margin-bottom: 10px;">
+            Refine natural language queries for specific CLI operations.
+            <br/>Works with any configured provider (Ollama, OpenAI, Anthropic, Mistral, Together, Aider).
+        </p>
         <select id="commandType">
             <option value="github">GitHub CLI (gh)</option>
             <option value="supabase">Supabase CLI</option>
@@ -446,6 +455,7 @@ function getNaturalLanguageWebviewContent(provider, model) {
         <textarea id="refinementInput" placeholder="Describe how you want to refine this command..."></textarea>
         <button onclick="refineCommand()">Refine Command</button>
         <div id="refinedResponse" class="response hidden"></div>
+        <div id="refinedProviderInfo" class="hidden" style="font-size: 0.85em; margin-top: 5px; color: var(--vscode-descriptionForeground);"></div>
     </div>
 
     <script>
@@ -488,16 +498,28 @@ function getNaturalLanguageWebviewContent(provider, model) {
                 case 'receiveResponse':
                     document.getElementById('queryResponse').textContent = message.text;
                     document.getElementById('queryResponse').classList.remove('hidden');
+                    if (message.provider) {
+                        document.getElementById('queryProviderInfo').textContent = 
+                            'Response from provider: ' + message.provider;
+                        document.getElementById('queryProviderInfo').classList.remove('hidden');
+                    }
                     break;
                 case 'receiveRefinedCommand':
                     document.getElementById('refinedResponse').textContent = 
                         message.commandType.toUpperCase() + ' Command:\\n' + message.text;
                     document.getElementById('refinedResponse').classList.remove('hidden');
+                    if (message.provider) {
+                        document.getElementById('refinedProviderInfo').textContent = 
+                            'Response from provider: ' + message.provider;
+                        document.getElementById('refinedProviderInfo').classList.remove('hidden');
+                    }
                     break;
                 case 'error':
                     const errorMsg = 'Error: ' + message.text;
                     document.getElementById('queryResponse').textContent = errorMsg;
                     document.getElementById('refinedResponse').textContent = errorMsg;
+                    document.getElementById('queryProviderInfo').classList.add('hidden');
+                    document.getElementById('refinedProviderInfo').classList.add('hidden');
                     break;
             }
         });
@@ -611,7 +633,10 @@ function getCodeGenerationWebviewContent(provider, model, instruction) {
 <body>
     <div class="header">
         <h2>AI Code Generation</h2>
-        <p>Provider: ${provider} | Model: ${model}</p>
+        <p><strong>Provider:</strong> ${provider} | <strong>Model:</strong> ${model}</p>
+        <p style="font-size: 0.9em; color: var(--vscode-descriptionForeground);">
+            Provider-agnostic code generation - works with any configured AI provider.
+        </p>
     </div>
     
     <div class="instruction">
@@ -771,6 +796,7 @@ async function selectProviderCommand() {
 /**
  * Natural Language Query Command
  * Allows users to send natural language queries to the AI
+ * Works uniformly across all supported provider types (Ollama, OpenAI, Anthropic, Mistral, Together, Aider)
  */
 async function naturalLanguageQueryCommand(context) {
   const panel = vscode.window.createWebviewPanel(
@@ -796,41 +822,64 @@ async function naturalLanguageQueryCommand(context) {
         case 'sendQuery':
           try {
             const routerUrl = getRouterUrl();
+            
+            // Reload config to ensure latest provider is used
+            currentConfig = loadAIConfig();
+            const currentProvider = currentConfig ? currentConfig.provider : 'ollama';
+            
+            // Log provider info for debugging
+            console.log(`[Natural Language Query] Using provider: ${currentProvider}`);
+            
             const response = await axios.post(`${routerUrl}/complete`, {
               prompt: message.text,
               context: message.context || ''
+            }, {
+              timeout: 30000 // 30 second timeout for complex queries
             });
             
             panel.webview.postMessage({
               command: 'receiveResponse',
               text: response.data,
-              originalQuery: message.text
+              originalQuery: message.text,
+              provider: currentProvider
             });
           } catch (error) {
+            console.error('[Natural Language Query] Error:', error);
             panel.webview.postMessage({
               command: 'error',
-              text: error.message
+              text: `Failed to process query: ${error.message}. Ensure the AI Router is running and the provider is properly configured.`
             });
           }
           break;
         case 'refineQuery':
           try {
             const routerUrl = getRouterUrl();
+            
+            // Reload config to ensure latest provider is used
+            currentConfig = loadAIConfig();
+            const currentProvider = currentConfig ? currentConfig.provider : 'ollama';
+            
+            console.log(`[Natural Language Query] Refining command using provider: ${currentProvider}`);
+            
             const refinementPrompt = `Refine this ${message.commandType} command: "${message.originalCommand}" to: ${message.refinement}`;
             const response = await axios.post(`${routerUrl}/complete`, {
               prompt: refinementPrompt,
               context: ''
+            }, {
+              timeout: 30000
             });
             
             panel.webview.postMessage({
               command: 'receiveRefinedCommand',
               text: response.data,
-              commandType: message.commandType
+              commandType: message.commandType,
+              provider: currentProvider
             });
           } catch (error) {
+            console.error('[Natural Language Query] Refinement error:', error);
             panel.webview.postMessage({
               command: 'error',
-              text: error.message
+              text: `Failed to refine command: ${error.message}. Ensure the AI Router is running and the provider is properly configured.`
             });
           }
           break;
@@ -844,6 +893,7 @@ async function naturalLanguageQueryCommand(context) {
 /**
  * Generate Code Command
  * Allows users to request, review, and apply AI-generated code
+ * Works uniformly across all supported provider types
  */
 async function generateCodeCommand(context) {
   // Get code generation instruction from user
@@ -870,6 +920,8 @@ async function generateCodeCommand(context) {
   const provider = currentConfig ? currentConfig.provider : 'ollama';
   const model = currentConfig ? currentConfig.model : 'codellama';
 
+  console.log(`[Generate Code] Using provider: ${provider}`);
+
   panel.webview.html = getCodeGenerationWebviewContent(provider, model, instruction);
 
   // Generate code
@@ -883,6 +935,8 @@ async function generateCodeCommand(context) {
     const response = await axios.post(`${routerUrl}/complete`, {
       prompt: `Generate code for the following request:\n${instruction}\n\nCurrent file context:\n${fileContext}`,
       context: fileContext
+    }, {
+      timeout: 30000 // 30 second timeout for complex code generation
     });
 
     panel.webview.postMessage({
@@ -891,9 +945,10 @@ async function generateCodeCommand(context) {
       instruction: instruction
     });
   } catch (error) {
+    console.error('[Generate Code] Error:', error);
     panel.webview.postMessage({
       command: 'error',
-      text: error.message
+      text: `Failed to generate code: ${error.message}. Ensure the AI Router is running and the provider is properly configured.`
     });
   }
 
@@ -932,9 +987,18 @@ async function generateCodeCommand(context) {
         case 'requestChanges':
           try {
             const routerUrl = getRouterUrl();
+            
+            // Reload config to ensure latest provider is used
+            currentConfig = loadAIConfig();
+            const currentProvider = currentConfig ? currentConfig.provider : 'ollama';
+            
+            console.log(`[Generate Code] Requesting changes using provider: ${currentProvider}`);
+            
             const response = await axios.post(`${routerUrl}/complete`, {
               prompt: `Modify the following code based on this feedback:\n\nOriginal request: ${message.originalInstruction}\n\nGenerated code:\n${message.currentCode}\n\nRequested changes: ${message.changes}`,
               context: message.currentCode
+            }, {
+              timeout: 30000
             });
             
             panel.webview.postMessage({
@@ -943,9 +1007,10 @@ async function generateCodeCommand(context) {
               instruction: message.originalInstruction
             });
           } catch (error) {
+            console.error('[Generate Code] Request changes error:', error);
             panel.webview.postMessage({
               command: 'error',
-              text: error.message
+              text: `Failed to modify code: ${error.message}`
             });
           }
           break;
