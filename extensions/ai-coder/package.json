@@ -32,6 +32,14 @@
       {
         "command": "ai-coder.selectProvider",
         "title": "AI Coder: Select Provider"
+      },
+      {
+        "command": "ai-coder.naturalLanguageQuery",
+        "title": "AI Coder: Natural Language Query"
+      },
+      {
+        "command": "ai-coder.generateCode",
+        "title": "AI Coder: Generate Code with AI"
       }
     ],
     "configuration": {
